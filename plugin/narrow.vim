@@ -20,7 +20,7 @@
 " ****************************************************************************
 
 if exists('g:loadedNarrow')
-  finish
+	finish
 endif
 
 let s:savedOptions = &cpoptions
@@ -34,16 +34,22 @@ fu! narrow#Narrow(rb, re)
 		" Save modified state.
 		let modified = &l:modified
 
-		" Store buffer contents.
-		let prr = getline(1, a:rb - 1)
-		let por = getline(a:re + 1, "$")
-		let b:narrowData = { "pre": prr, "post": por, "rb": a:rb, "re": a:re }
+		let b:narrowData = { "pre": [], "post": [] }
 
-		" Remove text outside the narrowed region.
-		exe "silent " . (a:re + 1) . ",$d _"
-		exe "silent 1," . (a:rb - 1) . "d _"
 
-		let b:narrowData.ch = changenr()
+		" Store buffer contents and remove everything outside the range.
+		if a:re < line("$")
+			let b:narrowData["post"] = getline(a:re + 1, "$")
+			exe "silent " . (a:re + 1) . ",$d _"
+		end
+
+		if a:rb > 1
+			let b:narrowData["pre"] = getline(1, a:rb - 1)
+			exe "silent 1," . (a:rb - 1) . "d _"
+		end
+
+
+		let b:narrowData["change"] = changenr()
 
 		augroup plugin-narrow
 			au BufWriteCmd <buffer> call narrow#Save()
@@ -68,7 +74,7 @@ fu! narrow#Widen()
 		let pos = getpos(".")
 
 		" Prepare pre-narrow-zone content.
-		let content = copy(b:narrowData.pre)
+		let content = copy(b:narrowData["pre"])
 
 		" Calculate cursor position based of the length of the inserted
 		" content, so the cursor doesn't move when widening.
@@ -76,7 +82,7 @@ fu! narrow#Widen()
 
 		" Prepare rest of buffer content and push it back into the buffer.
 		let content = extend(content, copy(getline(1, "$")))
-		let content = extend(content, copy(b:narrowData.post))
+		let content = extend(content, copy(b:narrowData["post"]))
 		call setline(1, content)
 
 		" Restore save command.
@@ -127,7 +133,7 @@ fu! s:safeUndo()
 
 		silent undo
 
-		if changenr() < b:narrowData.ch
+		if changenr() < b:narrowData["change"]
 			silent redo
 			echo "I told you to be careful with undo! Widen first."
 			call setpos(".", pos)
@@ -148,5 +154,3 @@ let &cpoptions = s:savedOptions
 unlet s:savedOptions
 
 let g:loadedNarrow = 1
-
-" __END__
