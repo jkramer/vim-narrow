@@ -47,7 +47,7 @@ fu! narrow#Narrow(rb, re)
 			set nomodified
 		en
 
-		echo "Narrowed. Be careful with undo/time travelling. " . changenr()
+		echo "Narrowed. Be careful with undo/time travelling."
 	endi
 endf
 
@@ -59,9 +59,14 @@ fu! narrow#Widen()
 		" Save modified state.
 		let modified = getbufvar(n, "&modified")
 
-		let text = remove(s:NarrowP, n)
+		" Save position.
+		let pos = getpos(".")
 
+		let text = remove(s:NarrowP, n)
 		let content = copy(text["pre"])
+
+		let pos[1] = pos[1] + len(content)
+
 		let content = extend(content, copy(getline(1, "$")))
 		let content = extend(content, copy(text["post"]))
 
@@ -74,7 +79,9 @@ fu! narrow#Widen()
 			set nomodified
 		en
 
-		echo "Widened. " . changenr()
+		call setpos('.', pos)
+
+		echo "Widened."
 	endi
 endf
 
@@ -106,7 +113,7 @@ fu! narrow#SaveUndo()
 		silent undo
 		if changenr() < s:NarrowP[n]["ch"]
 			silent redo
-			echo "I said, be careful with undo! Widen first. " . changenr()
+			echo "I said, be careful with undo! Widen first."
 			call setpos(".", pos)
 		en
 	else
