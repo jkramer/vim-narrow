@@ -18,10 +18,6 @@
 " instead of only the narrowed region in narrowed mode. Otherwise, when saving
 " in a narrowed buffer, only the region you zoomed into would be saved.
 " ****************************************************************************
-" BUGS:
-" - Cannot narrow different regions for the same buffer in 2 or more windows.
-" - Doesn't correctly work with buffers with BufWriteCmd.
-" - Missing :help documentation.
 
 if exists('g:loaded_narrow')
   finish
@@ -29,8 +25,6 @@ endif
 
 let s:save_cpoptions = &cpoptions
 set cpoptions&vim
-
-
 
 
 fu! narrow#Narrow(rb, re)
@@ -132,8 +126,6 @@ command! -bar -range Narrow call narrow#Narrow(<line1>, <line2>)
 command! -bar Widen call narrow#Widen()
 
 silent! nnoremap <silent> u  :<C-u>call <SID>undo_wrapper()<CR>
-
-
 
 
 let &cpoptions = s:save_cpoptions
