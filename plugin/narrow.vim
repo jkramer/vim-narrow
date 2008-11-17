@@ -28,6 +28,9 @@ fu! narrow#Narrow(rb, re)
 	if has_key(s:NarrowP, n)
 		echo "Buffer is already narrowed. Widen first, then select a new region."
 	else
+		" Save modified state.
+		let modified = getbufvar(n, "&modified")
+
 		let prr = getline(1, a:rb - 1)
 		let por = getline(a:re + 1, "$")
 		let s:NarrowP[n] = { "pre": prr, "post": por, "rb": a:rb, "re": a:re }
@@ -39,6 +42,11 @@ fu! narrow#Narrow(rb, re)
 
 		au BufWriteCmd <buffer> call narrow#Save()
 
+		" If buffer wasn't modify, unset modified flag.
+		if !modified
+			set nomodified
+		en
+
 		echo "Narrowed. Be careful with undo/time travelling. " . changenr()
 	endi
 endf
@@ -48,6 +56,9 @@ fu! narrow#Widen()
 	let n = bufnr("%")
 
 	if has_key(s:NarrowP, n)
+		" Save modified state.
+		let modified = getbufvar(n, "&modified")
+
 		let text = remove(s:NarrowP, n)
 
 		let content = copy(text["pre"])
@@ -57,6 +68,11 @@ fu! narrow#Widen()
 		call setline(1, content)
 
 		au! BufWriteCmd <buffer>
+
+		" If buffer wasn't modify, unset modified flag.
+		if !modified
+			set nomodified
+		en
 
 		echo "Widened. " . changenr()
 	endi
@@ -75,6 +91,7 @@ fu! narrow#Save()
 		let content = extend(content, copy(text["post"]))
 
 		call writefile(content, name)
+		set nomodified
 		echo "Saved something, not sure if it worked."
 	endi
 endf
