@@ -1,0 +1,10 @@
+
+
+Copy the stuff into your Vim folder:
+
+$ cp -r plugin doc ~/.vim/
+
+
+Then, in Vim:
+
+:helptags ~/.vim/doc
