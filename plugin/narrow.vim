@@ -7,7 +7,7 @@ fu! narrow#Narrow(rb, re)
 	let n = bufnr("%")
 
 	if has_key(s:NarrowP, n)
-		echo "Buffer is already narrowed. Widen first, the select a new region."
+		echo "Buffer is already narrowed. Widen first, then select a new region."
 	else
 		let prr = getline(1, a:rb - 1)
 		let por = getline(a:re + 1, "$")
@@ -79,7 +79,7 @@ fu! narrow#SaveUndo()
 endf
 
 
-command! -bar -range Narrow  call narrow#Narrow(<line1>, <line2>)
-command! -bar Widen  call narrow#Widen()
+command! -bar -range Narrow call narrow#Narrow(<line1>, <line2>)
+command! -bar Widen call narrow#Widen()
 
 map u :call narrow#SaveUndo()<Cr>
