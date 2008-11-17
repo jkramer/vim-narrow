@@ -29,13 +29,10 @@ set cpoptions&vim
 
 
 
-let s:NarrowP = {}
-
-
 fu! narrow#Narrow(rb, re)
 	let n = bufnr("%")
 
-	if has_key(s:NarrowP, n)
+	if exists('b:narrow_info')
 		echo "Buffer is already narrowed. Widen first, then select a new region."
 	else
 		" Save modified state.
@@ -43,12 +40,12 @@ fu! narrow#Narrow(rb, re)
 
 		let prr = getline(1, a:rb - 1)
 		let por = getline(a:re + 1, "$")
-		let s:NarrowP[n] = { "pre": prr, "post": por, "rb": a:rb, "re": a:re }
+		let b:narrow_info = { "pre": prr, "post": por, "rb": a:rb, "re": a:re }
 
 		exe "silent " . (a:re + 1) . ",$d"
 		exe "silent 1," . (a:rb - 1) . "d"
 
-		let s:NarrowP[n]["ch"] = changenr()
+		let b:narrow_info.ch = changenr()
 
 		au BufWriteCmd <buffer> call narrow#Save()
 
@@ -65,14 +62,15 @@ endf
 fu! narrow#Widen()
 	let n = bufnr("%")
 
-	if has_key(s:NarrowP, n)
+	if exists('b:narrow_info')
 		" Save modified state.
 		let modified = getbufvar(n, "&modified")
 
 		" Save position.
 		let pos = getpos(".")
 
-		let text = remove(s:NarrowP, n)
+		let text = b:narrow_info
+                unlet b:narrow_info
 		let content = copy(text["pre"])
 
 		let pos[1] = pos[1] + len(content)
@@ -100,8 +98,8 @@ fu! narrow#Save()
 	let n = bufnr("%")
 	let name = bufname("%")
 
-	if has_key(s:NarrowP, n)
-		let text = s:NarrowP[n]
+        if exists('b:narrow_info')
+		let text = b:narrow_info
 
 		let content = copy(text["pre"])
 		let content = extend(content, copy(getline(1, "$")))
@@ -117,11 +115,11 @@ endf
 fu! s:undo_wrapper()
 	let n = bufnr("%")
 
-	if has_key(s:NarrowP, n)
+        if exists('b:narrow_info')
 		let pos = getpos(".")
 
 		silent undo
-		if changenr() < s:NarrowP[n]["ch"]
+		if changenr() < b:narrow_info.ch
 			silent redo
 			echo "I said, be careful with undo! Widen first."
 			call setpos(".", pos)
