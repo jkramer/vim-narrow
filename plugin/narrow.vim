@@ -30,13 +30,11 @@ set cpoptions&vim
 
 
 fu! narrow#Narrow(rb, re)
-	let n = bufnr("%")
-
 	if exists('b:narrow_info')
 		echo "Buffer is already narrowed. Widen first, then select a new region."
 	else
 		" Save modified state.
-		let modified = getbufvar(n, "&modified")
+		let modified = &l:modified
 
 		let prr = getline(1, a:rb - 1)
 		let por = getline(a:re + 1, "$")
@@ -60,11 +58,9 @@ endf
 
 
 fu! narrow#Widen()
-	let n = bufnr("%")
-
 	if exists('b:narrow_info')
 		" Save modified state.
-		let modified = getbufvar(n, "&modified")
+		let modified = &l:modified
 
 		" Save position.
 		let pos = getpos(".")
@@ -84,7 +80,7 @@ fu! narrow#Widen()
 
 		" If buffer wasn't modify, unset modified flag.
 		if !modified
-			set nomodified
+			setlocal nomodified
 		en
 
 		call setpos('.', pos)
@@ -95,7 +91,6 @@ endf
 
 
 fu! narrow#Save()
-	let n = bufnr("%")
 	let name = bufname("%")
 
         if exists('b:narrow_info')
@@ -113,8 +108,6 @@ endf
 
 
 fu! s:undo_wrapper()
-	let n = bufnr("%")
-
         if exists('b:narrow_info')
 		let pos = getpos(".")
 
