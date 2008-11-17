@@ -51,7 +51,7 @@ fu! narrow#Narrow(rb, re)
 
 		" If buffer wasn't modify, unset modified flag.
 		if !modified
-			set nomodified
+			setlocal nomodified
 		en
 
 		echo "Narrowed. Be careful with undo/time travelling."
@@ -102,7 +102,7 @@ fu! narrow#Save()
 		let content = extend(content, copy(b:narrow_info.post))
 
 		call writefile(content, name)
-		set nomodified
+		setlocal nomodified
 		echo "Saved something, not sure if it worked."
 	endi
 endf
