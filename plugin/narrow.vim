@@ -45,7 +45,9 @@ fu! narrow#Narrow(rb, re)
 
 		let b:narrow_info.ch = changenr()
 
-		au BufWriteCmd <buffer> call narrow#Save()
+                augroup plugin-narrow
+                  au BufWriteCmd <buffer> call narrow#Save()
+                augroup END
 
 		" If buffer wasn't modify, unset modified flag.
 		if !modified
@@ -74,7 +76,9 @@ fu! narrow#Widen()
 
 		call setline(1, content)
 
-		au! BufWriteCmd <buffer>
+                augroup plugin-narrow
+                  au! BufWriteCmd <buffer>
+                augroup END
 
 		" If buffer wasn't modify, unset modified flag.
 		if !modified
