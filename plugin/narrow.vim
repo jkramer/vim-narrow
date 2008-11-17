@@ -18,6 +18,10 @@
 " instead of only the narrowed region in narrowed mode. Otherwise, when saving
 " in a narrowed buffer, only the region you zoomed into would be saved.
 " ****************************************************************************
+" BUGS:
+" - Cannot narrow different regions for the same buffer in 2 or more windows.
+" - Doesn't correctly work with buffers with BufWriteCmd.
+" - Missing :help documentation.
 
 if exists('g:loaded_narrow')
   finish
