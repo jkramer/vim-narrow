@@ -135,7 +135,7 @@ endf
 command! -bar -range Narrow call narrow#Narrow(<line1>, <line2>)
 command! -bar Widen call narrow#Widen()
 
-map u :call narrow#SaveUndo()<Cr>
+nnoremap u  :call narrow#SaveUndo()<CR>
 
 
 
