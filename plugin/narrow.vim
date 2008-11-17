@@ -40,8 +40,8 @@ fu! narrow#Narrow(rb, re)
 		let b:narrowData = { "pre": prr, "post": por, "rb": a:rb, "re": a:re }
 
 		" Remove text outside the narrowed region.
-		exe "silent " . (a:re + 1) . ",$d"
-		exe "silent 1," . (a:rb - 1) . "d"
+		exe "silent " . (a:re + 1) . ",$d _"
+		exe "silent 1," . (a:rb - 1) . "d _"
 
 		let b:narrowData.ch = changenr()
 
