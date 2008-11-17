@@ -19,7 +19,6 @@ fu! narrow#Narrow(rb, re)
 		let s:NarrowP[n]["ch"] = changenr()
 
 		au BufWriteCmd <buffer> call narrow#Save()
-		map u :call narrow#SaveUndo()<Cr>
 
 		echo "Narrowed. Be careful with undo/time travelling. " . changenr()
 	endi
@@ -39,7 +38,6 @@ fu! narrow#Widen()
 		call setline(1, content)
 
 		au! BufWriteCmd <buffer>
-		map u :undo<Cr>
 
 		echo "Widened. " . changenr()
 	endi
@@ -76,11 +74,12 @@ fu! narrow#SaveUndo()
 			call setpos(".", pos)
 		en
 	else
-		map u :undo<Cr>
-		echo "Undo restored."
+		undo
 	en
 endf
 
 
 command! -bar -range Narrow  call narrow#Narrow(<line1>, <line2>)
 command! -bar Widen  call narrow#Widen()
+
+map u :call narrow#SaveUndo()<Cr>
