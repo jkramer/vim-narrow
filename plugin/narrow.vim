@@ -1,4 +1,23 @@
-
+" ****************************************************************************
+" File:             narrow.vim
+" Author:           Jonas Kramer
+" Version:          0.1
+" Last Modified:    2008-11-17
+" Copyright:        Copyright (C) 2008 by Jonas Kramer. Published under the
+"                   terms of the Artistic License 2.0.
+" ****************************************************************************
+" Installation: Copy this script into your plugin folder.
+" Usage: Call the command :Narrow with a range to zoom into the range area.
+" Call :Widen to zoom out again.
+" WARNING! Be careful when doing undo operations in a narrowed buffer. If you
+" undo the :Narrow action, :Widen will fail miserable and you'll probably have
+" the hidden parts doubled in your buffer. The 'u' key is remapped to a save
+" undo function, but you can still mess this plugin up with :earlier, g- etc.
+" Also make sure that you don't mess with the buffers autocmd BufWriteCmd
+" hook, as it is set to a function that allows saving of the whole buffer
+" instead of only the narrowed region in narrowed mode. Otherwise, when saving
+" in a narrowed buffer, only the region you zoomed into would be saved.
+" ****************************************************************************
 
 let s:NarrowP = {}
 
