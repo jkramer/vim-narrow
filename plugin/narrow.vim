@@ -23,6 +23,9 @@ if exists('g:loaded_narrow')
   finish
 endif
 
+let s:save_cpoptions = &cpoptions
+set cpoptions&vim
+
 
 
 
@@ -136,6 +139,9 @@ map u :call narrow#SaveUndo()<Cr>
 
 
 
+
+let &cpoptions = s:save_cpoptions
+unlet s:save_cpoptions
 
 let g:loaded_narrow = 1
 
