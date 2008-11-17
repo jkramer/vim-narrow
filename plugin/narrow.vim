@@ -19,6 +19,13 @@
 " in a narrowed buffer, only the region you zoomed into would be saved.
 " ****************************************************************************
 
+if exists('g:loaded_narrow')
+  finish
+endif
+
+
+
+
 let s:NarrowP = {}
 
 
@@ -126,3 +133,10 @@ command! -bar -range Narrow call narrow#Narrow(<line1>, <line2>)
 command! -bar Widen call narrow#Widen()
 
 map u :call narrow#SaveUndo()<Cr>
+
+
+
+
+let g:loaded_narrow = 1
+
+" __END__
