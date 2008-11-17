@@ -65,14 +65,12 @@ fu! narrow#Widen()
 		" Save position.
 		let pos = getpos(".")
 
-		let text = b:narrow_info
-                unlet b:narrow_info
-		let content = copy(text["pre"])
+		let content = copy(b:narrow_info.pre)
 
 		let pos[1] = pos[1] + len(content)
 
 		let content = extend(content, copy(getline(1, "$")))
-		let content = extend(content, copy(text["post"]))
+		let content = extend(content, copy(b:narrow_info.post))
 
 		call setline(1, content)
 
@@ -84,6 +82,7 @@ fu! narrow#Widen()
 		en
 
 		call setpos('.', pos)
+                unlet b:narrow_info
 
 		echo "Widened."
 	endi
@@ -94,11 +93,9 @@ fu! narrow#Save()
 	let name = bufname("%")
 
         if exists('b:narrow_info')
-		let text = b:narrow_info
-
-		let content = copy(text["pre"])
+		let content = copy(b:narrow_info.pre)
 		let content = extend(content, copy(getline(1, "$")))
-		let content = extend(content, copy(text["post"]))
+		let content = extend(content, copy(b:narrow_info.post))
 
 		call writefile(content, name)
 		set nomodified
