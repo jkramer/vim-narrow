@@ -114,7 +114,7 @@ fu! narrow#Save()
 endf
 
 
-fu! narrow#SaveUndo()
+fu! s:undo_wrapper()
 	let n = bufnr("%")
 
 	if has_key(s:NarrowP, n)
@@ -135,7 +135,7 @@ endf
 command! -bar -range Narrow call narrow#Narrow(<line1>, <line2>)
 command! -bar Widen call narrow#Widen()
 
-silent! nnoremap <silent> u  :<C-u>call narrow#SaveUndo()<CR>
+silent! nnoremap <silent> u  :<C-u>call <SID>undo_wrapper()<CR>
 
 
 
