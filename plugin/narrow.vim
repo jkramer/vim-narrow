@@ -19,35 +19,37 @@
 " in a narrowed buffer, only the region you zoomed into would be saved.
 " ****************************************************************************
 
-if exists('g:loaded_narrow')
+if exists('g:loadedNarrow')
   finish
 endif
 
-let s:save_cpoptions = &cpoptions
+let s:savedOptions = &cpoptions
 set cpoptions&vim
 
 
 fu! narrow#Narrow(rb, re)
-	if exists('b:narrow_info')
+	if exists('b:narrowData')
 		echo "Buffer is already narrowed. Widen first, then select a new region."
 	else
 		" Save modified state.
 		let modified = &l:modified
 
+		" Store buffer contents.
 		let prr = getline(1, a:rb - 1)
 		let por = getline(a:re + 1, "$")
-		let b:narrow_info = { "pre": prr, "post": por, "rb": a:rb, "re": a:re }
+		let b:narrowData = { "pre": prr, "post": por, "rb": a:rb, "re": a:re }
 
+		" Remove text outside the narrowed region.
 		exe "silent " . (a:re + 1) . ",$d"
 		exe "silent 1," . (a:rb - 1) . "d"
 
-		let b:narrow_info.ch = changenr()
+		let b:narrowData.ch = changenr()
 
-                augroup plugin-narrow
-                  au BufWriteCmd <buffer> call narrow#Save()
-                augroup END
+		augroup plugin-narrow
+			au BufWriteCmd <buffer> call narrow#Save()
+		augroup END
 
-		" If buffer wasn't modify, unset modified flag.
+		" If buffer wasn't modified, unset modified flag.
 		if !modified
 			setlocal nomodified
 		en
@@ -58,62 +60,76 @@ endf
 
 
 fu! narrow#Widen()
-	if exists('b:narrow_info')
+	if exists('b:narrowData')
 		" Save modified state.
 		let modified = &l:modified
 
 		" Save position.
 		let pos = getpos(".")
 
-		let content = copy(b:narrow_info.pre)
+		" Prepare pre-narrow-zone content.
+		let content = copy(b:narrowData.pre)
 
+		" Calculate cursor position based of the length of the inserted
+		" content, so the cursor doesn't move when widening.
 		let pos[1] = pos[1] + len(content)
 
+		" Prepare rest of buffer content and push it back into the buffer.
 		let content = extend(content, copy(getline(1, "$")))
-		let content = extend(content, copy(b:narrow_info.post))
-
+		let content = extend(content, copy(b:narrowData.post))
 		call setline(1, content)
 
-                augroup plugin-narrow
-                  au! BufWriteCmd <buffer>
-                augroup END
+		" Restore save command.
+		augroup plugin-narrow
+			au! BufWriteCmd <buffer>
+		augroup END
 
-		" If buffer wasn't modify, unset modified flag.
+		" If buffer wasn't modified, unset modified flag.
 		if !modified
 			setlocal nomodified
 		en
 
+		" Restore cursor position.
 		call setpos('.', pos)
-                unlet b:narrow_info
+		unlet b:narrowData
 
-		echo "Widened."
+		echo "Buffer restored."
 	endi
 endf
 
 
+" Function to use instead of Vims builting save command, so we can save the
+" whole buffer instead of only the narrowed region in it as Vim would do.
 fu! narrow#Save()
 	let name = bufname("%")
 
-        if exists('b:narrow_info')
-		let content = copy(b:narrow_info.pre)
-		let content = extend(content, copy(getline(1, "$")))
-		let content = extend(content, copy(b:narrow_info.post))
+	if exists('b:narrowData')
 
+		" Prepare full buffer content to save.
+		let content = copy(b:narrowData.pre)
+		let content = extend(content, copy(getline(1, "$")))
+		let content = extend(content, copy(b:narrowData.post))
+
+		" Write file and hope for the best.
 		call writefile(content, name)
 		setlocal nomodified
-		echo "Saved something, not sure if it worked."
+
+		echo "Whee! I really hope that file is saved now!"
 	endi
 endf
 
 
-fu! s:undo_wrapper()
-        if exists('b:narrow_info')
+" Wrapper around :undo to make sure the user doesn't undo the :Narrow command,
+" which would break :Widen.
+fu! s:safeUndo()
+        if exists('b:narrowData')
 		let pos = getpos(".")
 
 		silent undo
-		if changenr() < b:narrow_info.ch
+
+		if changenr() < b:narrowData.ch
 			silent redo
-			echo "I said, be careful with undo! Widen first."
+			echo "I told you to be careful with undo! Widen first."
 			call setpos(".", pos)
 		en
 	else
@@ -125,12 +141,12 @@ endf
 command! -bar -range Narrow call narrow#Narrow(<line1>, <line2>)
 command! -bar Widen call narrow#Widen()
 
-silent! nnoremap <silent> u  :<C-u>call <SID>undo_wrapper()<CR>
+silent! nnoremap <silent> u  :<C-u>call <SID>safeUndo()<CR>
 
 
-let &cpoptions = s:save_cpoptions
-unlet s:save_cpoptions
+let &cpoptions = s:savedOptions
+unlet s:savedOptions
 
-let g:loaded_narrow = 1
+let g:loadedNarrow = 1
 
 " __END__
