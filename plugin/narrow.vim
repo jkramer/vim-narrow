@@ -73,17 +73,12 @@ fu! narrow#Widen()
 		" Save position.
 		let pos = getpos(".")
 
-		" Prepare pre-narrow-zone content.
-		let content = copy(b:narrowData["pre"])
-
 		" Calculate cursor position based of the length of the inserted
 		" content, so the cursor doesn't move when widening.
-		let pos[1] = pos[1] + len(content)
+		let pos[1] = pos[1] + len(b:narrowData["pre"])
 
-		" Prepare rest of buffer content and push it back into the buffer.
-		let content = extend(content, copy(getline(1, "$")))
-		let content = extend(content, copy(b:narrowData["post"]))
-		call setline(1, content)
+		call append(0, b:narrowData["pre"])
+		call append(line('$'), b:narrowData["post"])
 
 		" Restore save command.
 		augroup plugin-narrow
