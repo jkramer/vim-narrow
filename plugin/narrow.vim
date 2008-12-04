@@ -95,6 +95,8 @@ fu! narrow#Widen()
 		unlet b:narrowData
 
 		echo "Buffer restored."
+	else
+		echo "No buffer to widen."
 	endi
 endf
 
